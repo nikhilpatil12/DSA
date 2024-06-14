@@ -1,27 +1,27 @@
 #include <stdio.h>
 #include <iostream>
-#define MAXSIZE 10;
-struct ArrayStack
+struct DynArrayStack
 {
     int capacity;
     int top;
     int *array;
 };
-int SizeOfStack(ArrayStack *S);
-int Push(ArrayStack *S, int data);
-int Pop(ArrayStack *S);
-int IsEmpty(ArrayStack *S);
-int IsFull(ArrayStack *S);
-void DeleteStack(ArrayStack *S);
+int SizeOfStack(DynArrayStack *S);
+void Push(DynArrayStack *S, int data);
+int Pop(DynArrayStack *S);
+int Top(DynArrayStack *S);
+int IsEmpty(DynArrayStack *S);
+int IsFull(DynArrayStack *S);
+void DeleteStack(DynArrayStack *S);
 int main()
 {
-    ArrayStack *S = (ArrayStack *)malloc(sizeof(ArrayStack));
+    DynArrayStack *S = (DynArrayStack *)malloc(sizeof(DynArrayStack));
     if (!S)
     {
         printf("Memory error \n");
         return 0;
     }
-    S->capacity = MAXSIZE;
+    S->capacity = 1;
     S->top = -1;
     S->array = (int *)malloc(sizeof(S->capacity * sizeof(int)));
 
@@ -31,6 +31,7 @@ int main()
     Push(S, 1);
     Push(S, 2);
     Push(S, 3);
+    Push(S, 4);
     printf("IsFull: %d \n", IsFull(S));
     printf("IsEmpty: %d \n", IsEmpty(S));
     printf("Size of Stack: %d \n", SizeOfStack(S));
@@ -41,63 +42,64 @@ int main()
     // printf("Popped: %d \n", Pop(S));
     printf("IsFull: %d \n", IsFull(S));
     printf("IsEmpty: %d \n", IsEmpty(S));
+
+    printf("top: %d \n", Top(S));
     printf("Size of Stack: %d \n", SizeOfStack(S));
     DeleteStack(S);
 
     return 1;
 }
-int SizeOfStack(ArrayStack *S)
+int SizeOfStack(DynArrayStack *S)
 {
     if (S == NULL)
         return 0;
     return S->top + 1;
 }
-int Push(ArrayStack *S, int data)
+void DoubleStackArray(DynArrayStack *S)
 {
-    if (S->array == NULL)
-    {
-        printf("Memory error\n");
-        return 0;
-    }
-    if (S->top + 1 >= S->capacity)
-    {
-        printf("Stack is full \n");
-        return 0;
-    }
-    else
-    {
-        S->top++;
-        (S->array[S->top]) = data;
-    }
-    return 1;
+    S->capacity *= 2;
+    S->array = (int *)realloc(S->array, S->capacity * sizeof(int));
 }
-int Pop(ArrayStack *S)
+void Push(DynArrayStack *S, int data)
 {
-    if (S->array == NULL)
+    if (IsFull(S))
     {
-        printf("Memory Error\n");
-        return -99999;
+        DoubleStackArray(S);
     }
-    if (S->top == -1)
+    (S->array[++(S->top)]) = data;
+    return;
+}
+int Pop(DynArrayStack *S)
+{
+    if (IsEmpty(S))
     {
         printf("Empty Stack \n");
         return -99999;
     }
     return S->array[S->top--];
 }
-int IsEmpty(ArrayStack *S)
+int Top(DynArrayStack *S)
+{
+    if (IsEmpty(S))
+    {
+        printf("Empty Stack \n");
+        return -99999;
+    }
+    return S->array[S->top];
+}
+int IsEmpty(DynArrayStack *S)
 {
     if (!S)
         return -9999;
     return S->top == -1;
 }
-int IsFull(ArrayStack *S)
+int IsFull(DynArrayStack *S)
 {
     if (!S)
         return -9999;
     return S->top == S->capacity - 1;
 }
-void DeleteStack(ArrayStack *S)
+void DeleteStack(DynArrayStack *S)
 {
     if (S)
     {
